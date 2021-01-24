@@ -1,0 +1,65 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class PushBox : MonoBehaviour
+{
+
+    [Header("PUSH SETTINGS")]
+    public bool pushAndDragging = false;
+    public Animator anim;
+    private Movement move;
+    public float pushForce = 2;
+    public GameObject boxObject;
+
+    private void Awake()
+    {
+        move = GetComponent<Movement>();
+    }
+  
+
+    // Update is called once per frame
+    void Update()
+    {
+        RaycastHit hit;
+
+        if (Physics.Raycast(transform.position + new Vector3(0, 0.25f, 0), transform.TransformDirection(Vector3.forward), out hit, 0.8f) && hit.collider.gameObject.tag == "InteractiveBox" && move.canMove && !move.attacking && !move.rolling && move.onGround && !move.drinking && !move.sitting)
+        {
+
+            boxObject = hit.collider.gameObject;
+
+            if (Input.GetKeyDown(KeyCode.Q) && !pushAndDragging)
+            {
+                pushAndDragging = true;
+            }
+        }
+        else
+        {
+            pushAndDragging = false;
+        }
+
+        if (pushAndDragging)
+        {
+            Push();
+        }
+
+        anim.SetBool("PushAndDrag", pushAndDragging);
+
+    }
+
+    public void Push()
+    {
+        anim.SetFloat("Pushing", move.verticalMove + move.horizontalMove);
+
+        if (move.verticalMove > 0)
+        {
+            boxObject.GetComponent<Rigidbody>().AddForce(transform.TransformDirection(Vector3.forward) * pushForce, ForceMode.Impulse);
+        }
+
+
+        if (move.horizontalMove != 0)
+        {
+            boxObject.GetComponent<Rigidbody>().AddForce(transform.TransformDirection(Vector3.forward) * pushForce, ForceMode.Impulse);
+        }
+    }
+}
