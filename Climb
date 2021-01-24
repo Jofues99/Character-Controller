@@ -1,0 +1,52 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class Climb : MonoBehaviour
+{
+
+    public bool climbing;
+    private Movement move;
+    public float climbForce = 4;
+    public Animator anim;
+    // Start is called before the first frame update
+    private void Awake()
+    {
+        move = GetComponent<Movement>();
+    }
+
+
+    // Update is called once per frame
+    void Update()
+    {
+        RaycastHit hit;
+
+        if (Physics.Raycast(transform.position + new Vector3(0, 0.25f, 0), transform.TransformDirection(Vector3.forward), out hit, 0.4f) && hit.collider.gameObject.tag == "Wall" && !move.rolling && move.canMove && !move.attacking && !move.drinking )
+        {
+            if (move.canMove && move.verticalMove != 0 || move.horizontalMove != 0)
+            {
+                if (!move.onGround)
+                {
+                    climbing = true;
+                }
+            }
+            else
+            {
+                climbing = false;
+            }
+        }
+        else
+        {
+            climbing = false;
+        }
+
+
+        if (climbing)
+        {
+            move.fallVelocity = climbForce;
+            move.movePlayer.y = move.fallVelocity;
+        }
+
+        anim.SetBool("Climbing", climbing);
+    }
+}
